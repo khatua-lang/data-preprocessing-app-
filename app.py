@@ -24,7 +24,6 @@ initialize_session_state()
 
 st.title("🧹 Autonomous Data Preprocessing Agent")
 
-# Sidebar
 with st.sidebar:
     st.header("1. Upload Data")
     uploaded_file = st.file_uploader("Upload Messy CSV", type=["csv"])
@@ -40,7 +39,6 @@ with st.sidebar:
             df = None
             warnings_list = []
 
-            # Stage 1: UTF-8, strict
             try:
                 df = _try_read(uploaded_file)
             except UnicodeDecodeError:
@@ -48,7 +46,6 @@ with st.sidebar:
             except ParserError:
                 pass
 
-            # Stage 2: Latin-1, skip bad lines
             if df is None:
                 try:
                     df = _try_read(uploaded_file, encoding='latin1', on_bad_lines='skip')
@@ -56,7 +53,6 @@ with st.sidebar:
                 except (UnicodeDecodeError, ParserError):
                     pass
 
-            # Stage 3: UTF-8 skip bad lines
             if df is None:
                 try:
                     df = _try_read(uploaded_file, encoding='utf-8', encoding_errors='ignore', on_bad_lines='skip')
@@ -64,7 +60,6 @@ with st.sidebar:
                 except ParserError:
                     pass
 
-            # Stage 4: Auto-detect delimiter (handles semicolons, tabs, pipes, etc.)
             if df is None:
                 try:
                     df = _try_read(uploaded_file, sep=None, engine='python', encoding_errors='ignore', on_bad_lines='skip')
@@ -82,7 +77,6 @@ with st.sidebar:
                 st.session_state['data'] = df
                 st.success("File uploaded successfully!")
             
-            # Reset downstreams
             st.session_state['profile'] = None
             st.session_state['strategy'] = None
             st.session_state['cleaned_data'] = None
@@ -113,7 +107,6 @@ with st.sidebar:
                 st.session_state['strategy'] = st.session_state['agent'].propose_strategy(st.session_state['profile'])
             st.success("Strategy generated! Review in Tab 2.")
 
-# Main View
 if st.session_state['data'] is not None:
     tab1, tab2, tab3 = st.tabs(["📊 Raw Data & Profiling", "⚙️ Interactive Strategy", "✨ Cleaned Data & Logs"])
     
